@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fin_report_viewer_form" model="ir.ui.view">
+        <field name="name">fin.report.viewer.form</field>
+        <field name="model">fin.report.viewer</field>
+        <field name="arch" type="xml">
+            <form create="false" delete="false" class="o_fin_report_viewer">
+                <header>
+                    <button name="action_print_pdf" type="object" string="Print" class="btn-primary"/>
+                    <button name="action_refresh" type="object" string="View"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-info" role="alert" invisible="not warning_unposted">
+                        <field name="warning_unposted" nolabel="1"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="report_id" domain="[('id', 'in', available_report_ids)]" options="{'no_create': True}"/>
+                            <field name="root_report_id" invisible="1"/>
+                            <field name="available_report_ids" invisible="1"/>
+                            <field name="date_from" invisible="not report_id.filter_date_range"/>
+                            <field name="date_to"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="posted_only"/>
+                            <field name="use_comparison"/>
+                            <field name="comparison_date_from" invisible="not use_comparison"/>
+                            <field name="comparison_date_to" invisible="not use_comparison"/>
+                        </group>
+                    </group>
+                    <field name="line_ids" nolabel="1" class="o_fin_report_lines">
+                        <list decoration-bf="is_section" decoration-danger="balance &lt; 0" create="false" edit="false" delete="false">
+                            <field name="display_label" string=""/>
+                            <field name="balance" string="Balance"/>
+                            <field name="comparison" string="Comparison" column_invisible="not parent.use_comparison"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="is_section" column_invisible="1"/>
+                            <field name="drill_domain" column_invisible="1"/>
+                            <button name="action_open_items" type="object" string="Journal Items" invisible="not drill_domain"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

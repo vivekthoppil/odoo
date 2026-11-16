@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="cash_flow" model="account.report">
+        <field name="name">Cash Flow Statement</field>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_period_comparison" eval="True"/>
+        <field name="filter_show_draft" eval="True"/>
+        <field name="default_opening_date_filter">this_month</field>
+        <field name="availability_condition">always</field>
+        <field name="column_ids">
+            <record id="cash_flow_column_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+                <field name="sequence">1</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="cf_cfo" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="name">Cash Flows from operating activities</field>
+        <field name="code">CFO</field>
+        <field name="sequence">10</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="cf_np" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_cfo"/>
+        <field name="name">Net Profit</field>
+        <field name="code">CFNP</field>
+        <field name="sequence">10</field>
+        <field name="expression_ids" eval="[(0, 0, {'label': 'balance', 'engine': 'custom', 'formula': 'cash_flow_net_profit', 'date_scope': 'strict_range'})]"/>
+    </record>
+    <record id="cf_adj" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_cfo"/>
+        <field name="name">Adjustments to reconcile net profit/(loss) to net cash flows:</field>
+        <field name="code">ADJ</field>
+        <field name="sequence">20</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="cf_dep" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_adj"/>
+        <field name="name">Depreciation and amortisation</field>
+        <field name="code">DEP</field>
+        <field name="sequence">10</field>
+        <field name="domain_formula">sum([('account_id.account_type', '=', 'expense_depreciation')])</field>
+    </record>
+    <record id="cf_prov" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_adj"/>
+        <field name="name">Provisions</field>
+        <field name="code">PROV</field>
+        <field name="sequence">20</field>
+        <field name="external_formula">monetary</field>
+    </record>
+    <record id="cf_gint" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_adj"/>
+        <field name="name">Gain (-)/Loss (+) on sale of intangible assets</field>
+        <field name="code">GINT</field>
+        <field name="sequence">30</field>
+        <field name="external_formula">monetary</field>
+    </record>
+    <record id="cf_gppe" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_adj"/>
+        <field name="name">Gain (-)/Loss (+) on sale of property, plant and equipment</field>
+        <field name="code">GPPE</field>
+        <field name="sequence">40</field>
+        <field name="external_formula">monetary</field>
+    </record>
+    <record id="cf_grou" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_adj"/>
+        <field name="name">Gain (-)/Loss (+) on sale of right of use assets</field>
+        <field name="code">GROU</field>
+        <field name="sequence">50</field>
+        <field name="external_formula">monetary</field>
+    </record>
+    <record id="cf_gfin" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_adj"/>
+        <field name="name">Gain (-)/Loss (+) on sale of financial instruments</field>
+        <field name="code">GFIN</field>
+        <field name="sequence">60</field>
+        <field name="external_formula">monetary</field>
+    </record>
+    <record id="cf_fx" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_adj"/>
+        <field name="name">Unrealized FX Gain (-)/Loss (+)</field>
+        <field name="code">FX</field>
+        <field name="sequence">70</field>
+        <field name="external_formula">monetary</field>
+    </record>
+    <record id="cf_finres" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_adj"/>
+        <field name="name">Net financial result: income (-)/cost (+)</field>
+        <field name="code">FINRES</field>
+        <field name="sequence">80</field>
+        <field name="external_formula">monetary</field>
+    </record>
+
+    <record id="cf_wc" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_cfo"/>
+        <field name="name">Working capital adjustments</field>
+        <field name="code">WC</field>
+        <field name="sequence">30</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="cf_ar" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_wc"/>
+        <field name="name">Trade receivables</field>
+        <field name="code">AR</field>
+        <field name="sequence">10</field>
+        <field name="expression_ids" eval="[(0, 0, {'label': 'balance', 'engine': 'custom', 'formula': 'cash_change:asset_receivable', 'date_scope': 'strict_range'})]"/>
+    </record>
+    <record id="cf_oar" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_wc"/>
+        <field name="name">Other receivables</field>
+        <field name="code">OAR</field>
+        <field name="sequence">20</field>
+        <field name="expression_ids" eval="[(0, 0, {'label': 'balance', 'engine': 'custom', 'formula': 'cash_change:asset_current,asset_prepayments', 'date_scope': 'strict_range'})]"/>
+    </record>
+    <record id="cf_ap" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_wc"/>
+        <field name="name">Trade payables</field>
+        <field name="code">AP</field>
+        <field name="sequence">30</field>
+        <field name="expression_ids" eval="[(0, 0, {'label': 'balance', 'engine': 'custom', 'formula': 'cash_change:liability_payable', 'date_scope': 'strict_range'})]"/>
+    </record>
+    <record id="cf_oap" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="parent_id" ref="cf_wc"/>
+        <field name="name">Other payables</field>
+        <field name="code">OAP</field>
+        <field name="sequence">40</field>
+        <field name="expression_ids" eval="[(0, 0, {'label': 'balance', 'engine': 'custom', 'formula': 'cash_change:liability_current,liability_credit_card', 'date_scope': 'strict_range'})]"/>
+    </record>
+
+    <record id="cf_cfi" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="name">Cash flows from investing &amp; extraordinary activities</field>
+        <field name="code">CFI</field>
+        <field name="sequence">20</field>
+        <field name="external_formula">monetary</field>
+    </record>
+    <record id="cf_cff" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="name">Cash flows from financing activities</field>
+        <field name="code">CFF</field>
+        <field name="sequence">30</field>
+        <field name="external_formula">monetary</field>
+    </record>
+    <record id="cf_unrec" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="name">Not reconciled yet</field>
+        <field name="code">UNREC</field>
+        <field name="sequence">65</field>
+        <field name="expression_ids" eval="[(0, 0, {'label': 'balance', 'engine': 'custom', 'formula': 'cash_unreconciled', 'date_scope': 'strict_range'})]"/>
+    </record>
+    <record id="cf_total" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="name">Cash flows during the period</field>
+        <field name="code">TOTAL</field>
+        <field name="sequence">80</field>
+        <field name="aggregation_formula">CFO.balance + CFI.balance + CFF.balance + UNREC.balance</field>
+    </record>
+    <record id="cf_ob" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="name">Cash at the beginning of the period</field>
+        <field name="code">CFOB</field>
+        <field name="sequence">40</field>
+        <field name="expression_ids" eval="[(0, 0, {
+            'label': 'balance',
+            'engine': 'domain',
+            'formula': &quot;[('account_id.account_type', '=', 'asset_cash')]&quot;,
+            'subformula': 'sum',
+            'date_scope': 'to_beginning_of_period',
+        })]"/>
+    </record>
+    <record id="cf_cb" model="account.report.line">
+        <field name="report_id" ref="cash_flow"/>
+        <field name="name">Cash at the end of the period</field>
+        <field name="code">CFC</field>
+        <field name="sequence">50</field>
+        <field name="expression_ids" eval="[(0, 0, {
+            'label': 'balance',
+            'engine': 'domain',
+            'formula': &quot;[('account_id.account_type', '=', 'asset_cash')]&quot;,
+            'subformula': 'sum',
+            'date_scope': 'from_beginning',
+        })]"/>
+    </record>
+</odoo>
+

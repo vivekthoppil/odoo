@@ -1,0 +1,7 @@
+id,name,model_id,group_id/id,operation,domain
+access_fin_report_viewer_readonly,fin.report.viewer readonly,fin.report.viewer,account.group_account_readonly,crud,
+access_fin_report_viewer_basic,fin.report.viewer basic,fin.report.viewer,account.group_account_basic,crud,
+access_fin_report_viewer_manager,fin.report.viewer manager,fin.report.viewer,account.group_account_manager,crud,
+access_fin_report_viewer_line_readonly,fin.report.viewer.line readonly,fin.report.viewer.line,account.group_account_readonly,crud,
+access_fin_report_viewer_line_basic,fin.report.viewer.line basic,fin.report.viewer.line,account.group_account_basic,crud,
+access_fin_report_viewer_line_manager,fin.report.viewer.line manager,fin.report.viewer.line,account.group_account_manager,crud,

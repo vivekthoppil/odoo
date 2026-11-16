@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="balance_sheet_in_sch3" model="account.report">
+        <field name="name">Balance Sheet (Schedule III)</field>
+        <field name="root_report_id" ref="fin_reports_generic.balance_sheet"/>
+        <field name="availability_condition">coa</field>
+        <field name="chart_template">in_sch3</field>
+        <field name="country_id" ref="base.in"/>
+        <field name="filter_date_range" eval="False"/>
+        <field name="default_opening_date_filter">today</field>
+        <field name="column_ids">
+            <record id="balance_sheet_in_sch3_column" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+                <field name="sequence">1</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="in_bs_el" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="name">I. Equity and liabilities</field>
+        <field name="code">IN_EL</field>
+        <field name="sequence">10</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="in_bs_sf" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_el"/>
+        <field name="name">(1) Shareholders' funds</field>
+        <field name="code">IN_SF</field>
+        <field name="sequence">10</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="in_bs_sc" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_sf"/>
+        <field name="name">Share capital</field>
+        <field name="code">IN_SC</field>
+        <field name="sequence">10</field>
+        <field name="domain_formula">-sum([('account_id.tag_ids', 'in', [ref('l10n_in.account_tag_share_capital')])])</field>
+    </record>
+    <record id="in_bs_rs" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_sf"/>
+        <field name="name">Reserves and surplus</field>
+        <field name="code">IN_RS</field>
+        <field name="sequence">20</field>
+        <field name="domain_formula">-sum([('account_id.tag_ids', 'in', [ref('l10n_in.account_tag_reserves_surplus')])])</field>
+    </record>
+    <record id="in_bs_cye" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_sf"/>
+        <field name="name">Current year unallocated earnings</field>
+        <field name="code">CYE</field>
+        <field name="sequence">30</field>
+        <field name="expression_ids" eval="[(0, 0, {'label': 'balance', 'engine': 'custom', 'formula': 'current_year_earnings', 'date_scope': 'from_beginning'})]"/>
+    </record>
+    <record id="in_bs_ncl" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_el"/>
+        <field name="name">(3) Non-current liabilities</field>
+        <field name="code">IN_NCL</field>
+        <field name="sequence">30</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="in_bs_ltb" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_ncl"/>
+        <field name="name">Long-term borrowings</field>
+        <field name="code">IN_LTB</field>
+        <field name="sequence">10</field>
+        <field name="domain_formula">-sum([('account_id.tag_ids', 'in', [ref('l10n_in.account_tag_long_term_borrowings')])])</field>
+    </record>
+    <record id="in_bs_cl" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_el"/>
+        <field name="name">(4) Current liabilities</field>
+        <field name="code">IN_CL</field>
+        <field name="sequence">40</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="in_bs_tp" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_cl"/>
+        <field name="name">Trade payables</field>
+        <field name="code">IN_TP</field>
+        <field name="sequence">10</field>
+        <field name="domain_formula">-sum([('account_id.tag_ids', 'in', [ref('l10n_in.account_tag_trade_payables')])])</field>
+    </record>
+    <record id="in_bs_ocl" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_cl"/>
+        <field name="name">Other current liabilities</field>
+        <field name="code">IN_OCL</field>
+        <field name="sequence">20</field>
+        <field name="domain_formula">-sum([('account_id.tag_ids', 'in', [ref('l10n_in.account_tag_other_current_liabilities')])])</field>
+    </record>
+
+    <record id="in_bs_as" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="name">II. Assets</field>
+        <field name="code">IN_AS</field>
+        <field name="sequence">20</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="in_bs_nca" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_as"/>
+        <field name="name">(1) Non-current assets</field>
+        <field name="code">IN_NCA</field>
+        <field name="sequence">10</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="in_bs_ppe" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_nca"/>
+        <field name="name">Property, plant and equipment and intangible assets</field>
+        <field name="code">IN_PPE</field>
+        <field name="sequence">10</field>
+        <field name="domain_formula">sum([('account_id.tag_ids', 'in', [ref('l10n_in.account_tag_property_plant_equipment')])])</field>
+    </record>
+    <record id="in_bs_ca" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_as"/>
+        <field name="name">(2) Current assets</field>
+        <field name="code">IN_CA</field>
+        <field name="sequence">20</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="in_bs_tr" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_ca"/>
+        <field name="name">Trade receivables</field>
+        <field name="code">IN_TR</field>
+        <field name="sequence">10</field>
+        <field name="domain_formula">sum([('account_id.tag_ids', 'in', [ref('l10n_in.account_tag_trade_receivables')])])</field>
+    </record>
+    <record id="in_bs_cash" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_ca"/>
+        <field name="name">Cash and cash equivalents</field>
+        <field name="code">IN_CASH</field>
+        <field name="sequence">20</field>
+        <field name="domain_formula">sum([('account_id.tag_ids', 'in', [ref('l10n_in.account_tag_cash_and_cash_equivalents')])])</field>
+    </record>
+    <record id="in_bs_inv" model="account.report.line">
+        <field name="report_id" ref="balance_sheet_in_sch3"/>
+        <field name="parent_id" ref="in_bs_ca"/>
+        <field name="name">Inventories</field>
+        <field name="code">IN_INV</field>
+        <field name="sequence">30</field>
+        <field name="domain_formula">sum([('account_id.tag_ids', 'in', [ref('l10n_in.account_tag_inventories')])])</field>
+    </record>
+
+    <record id="profit_and_loss_in_sch3" model="account.report">
+        <field name="name">Profit and Loss (Schedule III)</field>
+        <field name="root_report_id" ref="fin_reports_generic.profit_and_loss"/>
+        <field name="availability_condition">coa</field>
+        <field name="chart_template">in_sch3</field>
+        <field name="country_id" ref="base.in"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="default_opening_date_filter">this_year</field>
+        <field name="column_ids">
+            <record id="profit_and_loss_in_sch3_column" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+                <field name="sequence">1</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="in_pl_rev" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss_in_sch3"/>
+        <field name="name">I. Revenue from operations</field>
+        <field name="code">IN_REV</field>
+        <field name="sequence">10</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="in_pl_prod" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss_in_sch3"/>
+        <field name="parent_id" ref="in_pl_rev"/>
+        <field name="name">Sale of products</field>
+        <field name="code">IN_REV_PROD</field>
+        <field name="sequence">10</field>
+        <field name="domain_formula">-sum([('account_id.tag_ids', 'in', [ref('l10n_in.account_tag_sale_of_products')])])</field>
+    </record>
+    <record id="in_pl_serv" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss_in_sch3"/>
+        <field name="parent_id" ref="in_pl_rev"/>
+        <field name="name">Sale of services</field>
+        <field name="code">IN_REV_SERV</field>
+        <field name="sequence">20</field>
+        <field name="domain_formula">-sum([('account_id.tag_ids', 'in', [ref('l10n_in.account_tag_sale_of_services')])])</field>
+    </record>
+    <record id="in_pl_oi" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss_in_sch3"/>
+        <field name="name">II. Other income</field>
+        <field name="code">IN_OI</field>
+        <field name="sequence">20</field>
+        <field name="domain_formula">-sum([('account_id.tag_ids', 'in', [ref('l10n_in.account_tag_interest_income'), ref('l10n_in.account_tag_dividend_income'), ref('l10n_in.account_tag_net_gain_loss'), ref('l10n_in.account_tag_other_non_operating_income')])])</field>
+    </record>
+    <record id="in_pl_ti" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss_in_sch3"/>
+        <field name="name">III. Total income</field>
+        <field name="code">IN_TI</field>
+        <field name="sequence">30</field>
+        <field name="aggregation_formula">IN_REV.balance + IN_OI.balance</field>
+    </record>
+    <record id="in_pl_exp" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss_in_sch3"/>
+        <field name="name">IV. Expenses</field>
+        <field name="code">IN_EXP</field>
+        <field name="sequence">40</field>
+        <field name="domain_formula">sum([('account_id.tag_ids', 'in', [ref('l10n_in.account_tag_expenses')])])</field>
+    </record>
+    <record id="in_pl_pbt" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss_in_sch3"/>
+        <field name="name">V. Profit before tax</field>
+        <field name="code">IN_PBT</field>
+        <field name="sequence">50</field>
+        <field name="aggregation_formula">IN_TI.balance - IN_EXP.balance</field>
+    </record>
+    <record id="in_pl_nep" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss_in_sch3"/>
+        <field name="name">VII. Profit for the period</field>
+        <field name="code">NEP</field>
+        <field name="sequence">60</field>
+        <field name="aggregation_formula">IN_PBT.balance</field>
+    </record>
+</odoo>

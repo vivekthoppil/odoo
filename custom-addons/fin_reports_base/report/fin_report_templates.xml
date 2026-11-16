@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_fin_statement" model="ir.actions.report">
+        <field name="name">Financial Statement</field>
+        <field name="model">fin.report.viewer</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">fin_reports_base.report_fin_statement_document</field>
+        <field name="print_report_name">(object.report_id.name)</field>
+    </record>
+
+    <template id="report_fin_statement_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 t-esc="doc.report_id.name"/>
+                        <p>
+                            <t t-if="doc.report_id.filter_date_range">
+                                <span t-field="doc.date_from"/> - <span t-field="doc.date_to"/>
+                            </t>
+                            <t t-else="">
+                                As of <span t-field="doc.date_to"/>
+                            </t>
+                            — <span t-field="doc.company_id.name"/>
+                        </p>
+                        <table class="table table-sm o_fin_report_pdf">
+                            <thead>
+                                <tr>
+                                    <th/>
+                                    <th class="text-end">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.line_ids" t-as="line">
+                                    <td t-att-style="'padding-left:%spx;font-weight:%s' % (line.level * 16, 'bold' if line.is_section else 'normal')">
+                                        <span t-esc="line.name"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-field="line.balance" t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

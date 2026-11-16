@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="profit_and_loss" model="account.report">
+        <field name="name">Profit and Loss</field>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_period_comparison" eval="True"/>
+        <field name="filter_show_draft" eval="True"/>
+        <field name="default_opening_date_filter">this_year</field>
+        <field name="availability_condition">always</field>
+        <field name="column_ids">
+            <record id="profit_and_loss_column_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+                <field name="sequence">1</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="pl_rev" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss"/>
+        <field name="name">Revenue</field>
+        <field name="code">REV</field>
+        <field name="sequence">10</field>
+        <field name="domain_formula">-sum([('account_id.account_type', '=', 'income')])</field>
+    </record>
+    <record id="pl_cor" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss"/>
+        <field name="name">Costs of Revenue</field>
+        <field name="code">COR</field>
+        <field name="sequence">20</field>
+        <field name="domain_formula">sum([('account_id.account_type', '=', 'expense_direct_cost')])</field>
+    </record>
+    <record id="pl_gp" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss"/>
+        <field name="name">Gross Profit</field>
+        <field name="code">GP</field>
+        <field name="sequence">30</field>
+        <field name="aggregation_formula">REV.balance - COR.balance</field>
+    </record>
+    <record id="pl_opex" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss"/>
+        <field name="name">Operating Expenses</field>
+        <field name="code">OPEX</field>
+        <field name="sequence">40</field>
+        <field name="domain_formula">sum([('account_id.account_type', 'in', ('expense', 'expense_depreciation'))])</field>
+    </record>
+    <record id="pl_oi" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss"/>
+        <field name="name">Operating Income (or Loss)</field>
+        <field name="code">OI</field>
+        <field name="sequence">50</field>
+        <field name="aggregation_formula">GP.balance - OPEX.balance</field>
+    </record>
+    <record id="pl_othinc" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss"/>
+        <field name="name">Other Income</field>
+        <field name="code">OTHINC</field>
+        <field name="sequence">60</field>
+        <field name="domain_formula">-sum([('account_id.account_type', '=', 'income_other')])</field>
+    </record>
+    <record id="pl_othexp" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss"/>
+        <field name="name">Other Expenses</field>
+        <field name="code">OTHEXP</field>
+        <field name="sequence">70</field>
+        <field name="domain_formula">sum([('account_id.account_type', '=', 'expense_other')])</field>
+    </record>
+    <record id="pl_nep" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss"/>
+        <field name="name">Net Profit</field>
+        <field name="code">NEP</field>
+        <field name="sequence">80</field>
+        <field name="aggregation_formula">OI.balance + OTHINC.balance - OTHEXP.balance</field>
+    </record>
+    <record id="pl_alloc" model="account.report.line">
+        <field name="report_id" ref="profit_and_loss"/>
+        <field name="name">Allocations and Withdrawals</field>
+        <field name="code">ALLOC</field>
+        <field name="sequence">90</field>
+        <field name="external_formula">monetary</field>
+    </record>
+</odoo>

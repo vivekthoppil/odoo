@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="balance_sheet" model="account.report">
+        <field name="name">Balance Sheet</field>
+        <field name="filter_date_range" eval="False"/>
+        <field name="filter_period_comparison" eval="True"/>
+        <field name="filter_show_draft" eval="True"/>
+        <field name="default_opening_date_filter">today</field>
+        <field name="availability_condition">always</field>
+        <field name="column_ids">
+            <record id="balance_sheet_column_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+                <field name="sequence">1</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="bs_assets" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="name">ASSETS</field>
+        <field name="code">ASSETS</field>
+        <field name="sequence">10</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="bs_ca" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_assets"/>
+        <field name="name">Current Assets</field>
+        <field name="code">CA</field>
+        <field name="sequence">10</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="bs_cash" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_ca"/>
+        <field name="name">Bank and Cash Accounts</field>
+        <field name="code">CASH</field>
+        <field name="sequence">10</field>
+        <field name="domain_formula">sum([('account_id.account_type', '=', 'asset_cash')])</field>
+    </record>
+    <record id="bs_rec" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_ca"/>
+        <field name="name">Receivables</field>
+        <field name="code">REC</field>
+        <field name="sequence">20</field>
+        <field name="domain_formula">sum([('account_id.account_type', '=', 'asset_receivable')])</field>
+    </record>
+    <record id="bs_cura" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_ca"/>
+        <field name="name">Current Assets</field>
+        <field name="code">CURA</field>
+        <field name="sequence">30</field>
+        <field name="domain_formula">sum([('account_id.account_type', '=', 'asset_current')])</field>
+    </record>
+    <record id="bs_prep" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_ca"/>
+        <field name="name">Prepayments</field>
+        <field name="code">PREP</field>
+        <field name="sequence">40</field>
+        <field name="domain_formula">sum([('account_id.account_type', '=', 'asset_prepayments')])</field>
+    </record>
+    <record id="bs_fixed" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_assets"/>
+        <field name="name">Plus Fixed Assets</field>
+        <field name="code">FIXED</field>
+        <field name="sequence">20</field>
+        <field name="domain_formula">sum([('account_id.account_type', '=', 'asset_fixed')])</field>
+    </record>
+    <record id="bs_nca" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_assets"/>
+        <field name="name">Plus Non-current Assets</field>
+        <field name="code">NCA</field>
+        <field name="sequence">30</field>
+        <field name="domain_formula">sum([('account_id.account_type', '=', 'asset_non_current')])</field>
+    </record>
+
+    <record id="bs_liab" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="name">LIABILITIES</field>
+        <field name="code">LIAB</field>
+        <field name="sequence">20</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="bs_cl" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_liab"/>
+        <field name="name">Current Liabilities</field>
+        <field name="code">CL</field>
+        <field name="sequence">10</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="bs_curl" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_cl"/>
+        <field name="name">Current Liabilities</field>
+        <field name="code">CURL</field>
+        <field name="sequence">10</field>
+        <field name="domain_formula">-sum([('account_id.account_type', '=', 'liability_current')])</field>
+    </record>
+    <record id="bs_ccard" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_cl"/>
+        <field name="name">Credit Card</field>
+        <field name="code">CCARD</field>
+        <field name="sequence">20</field>
+        <field name="domain_formula">-sum([('account_id.account_type', '=', 'liability_credit_card')])</field>
+    </record>
+    <record id="bs_pay" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_cl"/>
+        <field name="name">Payables</field>
+        <field name="code">PAY</field>
+        <field name="sequence">30</field>
+        <field name="domain_formula">-sum([('account_id.account_type', '=', 'liability_payable')])</field>
+    </record>
+    <record id="bs_ncl" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_liab"/>
+        <field name="name">Non-current Liabilities</field>
+        <field name="code">NCL</field>
+        <field name="sequence">20</field>
+        <field name="domain_formula">-sum([('account_id.account_type', '=', 'liability_non_current')])</field>
+    </record>
+
+    <record id="bs_equity" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="name">EQUITY (&amp; EARNINGS)</field>
+        <field name="code">EQUITY</field>
+        <field name="sequence">30</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="bs_eq" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_equity"/>
+        <field name="name">Equity</field>
+        <field name="code">EQ</field>
+        <field name="sequence">10</field>
+        <field name="domain_formula">-sum([('account_id.account_type', '=', 'equity')])</field>
+    </record>
+    <record id="bs_earn" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_equity"/>
+        <field name="name">Earnings</field>
+        <field name="code">EARN</field>
+        <field name="sequence">20</field>
+        <field name="aggregation_formula">sum_children</field>
+    </record>
+    <record id="bs_cye" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_earn"/>
+        <field name="name">Current Year Unallocated Earnings</field>
+        <field name="code">CYE</field>
+        <field name="sequence">10</field>
+        <field name="expression_ids" eval="[(0, 0, {'label': 'balance', 'engine': 'custom', 'formula': 'current_year_earnings', 'date_scope': 'from_beginning'})]"/>
+    </record>
+    <record id="bs_pye" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_earn"/>
+        <field name="name">Previous Years Earnings</field>
+        <field name="code">PYE</field>
+        <field name="sequence">20</field>
+        <field name="expression_ids" eval="[(0, 0, {
+            'label': 'balance',
+            'engine': 'aggregation',
+            'formula': 'PYER.balance + PYEC.balance',
+            'date_scope': 'from_beginning',
+        })]"/>
+    </record>
+    <record id="bs_pyer" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_pye"/>
+        <field name="name">Retained Earnings</field>
+        <field name="code">PYER</field>
+        <field name="sequence">10</field>
+        <field name="hide_if_zero" eval="True"/>
+        <field name="domain_formula">-sum([('account_id.account_type', '=', 'equity_retained')])</field>
+    </record>
+    <record id="bs_pyec" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="parent_id" ref="bs_pye"/>
+        <field name="name">Prior Unallocated Earnings</field>
+        <field name="code">PYEC</field>
+        <field name="sequence">20</field>
+        <field name="hide_if_zero" eval="True"/>
+        <field name="expression_ids" eval="[(0, 0, {'label': 'balance', 'engine': 'custom', 'formula': 'previous_years_earnings', 'date_scope': 'from_beginning'})]"/>
+    </record>
+
+    <record id="bs_leq" model="account.report.line">
+        <field name="report_id" ref="balance_sheet"/>
+        <field name="name">LIABILITIES + EQUITY</field>
+        <field name="code">LEQ</field>
+        <field name="sequence">40</field>
+        <field name="aggregation_formula">LIAB.balance + EQUITY.balance</field>
+    </record>
+</odoo>
